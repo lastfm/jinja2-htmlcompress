@@ -13,10 +13,14 @@ JINJA2_EXTENSIONS = [
     'jinja2htmlcompressor.HTMLCompress'
 ]
 ```
-How does it work?  It throws away all whitespace between HTML tags
+How does it work? It throws away all whitespace between HTML tags
 it can find at runtime. It will however preserve pre, textarea, style
-and script tags because this kinda makes sense.  In order to force
-whitespace you can use ``{{ " " }}``.
+and script tags because this kinda makes sense. There is one exception for script tags,
+that contain an angularjs template:
+```html
+<script type="test/ng-template" ....
+```
+In order to force whitespace you can use ``{{ " " }}``.
 
 Unlike filters that work at template runtime, this remotes whitespace
 at compile time and does not add an overhead in template execution.
