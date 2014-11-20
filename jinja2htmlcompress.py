@@ -61,14 +61,15 @@ class HTMLCompress(Extension):
     def is_isolated(self, stack):
         for tag, value in reversed(stack):
             if (tag in self.isolated_elements
-                or (tag == "script" and "ng-template" not in value)):
+                    or (tag == "script" and "ng-template" not in value)):
                 return True
         return False
 
     def is_breaking(self, tag, other_tag):
         breaking = self.breaking_rules.get(other_tag)
-        return breaking and (tag in breaking or
-            ('#block' in breaking and tag in self.block_elements))
+        return breaking and (
+            tag in breaking or (
+                '#block' in breaking and tag in self.block_elements))
 
     def enter_tag(self, tag, ctx):
         while ctx.stack and self.is_breaking(tag, ctx.stack[-1][0]):
@@ -93,6 +94,7 @@ class HTMLCompress(Extension):
     def normalize(self, ctx):
         pos = 0
         buffer = []
+
         def write_data(value):
             if not self.is_isolated(ctx.stack):
                 value = _ws_normalize_re.sub(' ', value.strip())
@@ -134,7 +136,7 @@ class SelectiveHTMLCompress(HTMLCompress):
     def filter_stream(self, stream):
         ctx = StreamProcessContext(stream)
         strip_depth = 0
-        while 1:
+        while True:
             if stream.current.type == 'block_begin':
                 if stream.look().test('name:strip') or \
                    stream.look().test('name:endstrip'):
