@@ -17,6 +17,8 @@ from jinja2 import TemplateSyntaxError
 
 _tag_re = re.compile(r'(?:<(/?)([a-zA-Z0-9_-]+)\s*|(>\s*))(?s)')
 _ws_normalize_re = re.compile(r'[ \t\r\n]+')
+_incomplete_class_re = re.compile(r'(^class|^.* class)="[^"]+$', re.DOTALL)
+_incomplete_tag_re = re.compile(r'.*<[a-zA-Z]*$', re.DOTALL)
 
 
 class StreamProcessContext(object):
@@ -93,6 +95,8 @@ class HTMLCompress(Extension):
         def write_data(value):
             if not self.is_isolated(ctx.stack):
                 value = _ws_normalize_re.sub(' ', value.strip())
+            if _incomplete_class_re.match(value) or _incomplete_tag_re.match(value):
+                value = value + " "
             buffer.append(value)
 
         for match in _tag_re.finditer(ctx.token.value):
@@ -102,7 +106,11 @@ class HTMLCompress(Extension):
             if sole:
                 write_data(sole)
             else:
-                buffer.append(match.group())
+                value = match.group()
+                if _incomplete_class_re.match(value) or _incomplete_tag_re.match(value):
+                    value = value + " "
+
+                buffer.append(value)
                 (closes and self.leave_tag or self.enter_tag)(tag, ctx)
             pos = match.end()
 
