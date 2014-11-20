@@ -42,7 +42,7 @@ def _make_dict_from_listing(listing):
 
 
 class HTMLCompress(Extension):
-    isolated_elements = set(['script', 'style', 'noscript', 'textarea'])
+    isolated_elements = set(['style', 'noscript', 'textarea'])
     void_elements = set(['br', 'img', 'area', 'hr', 'param', 'input',
                          'embed', 'col'])
     block_elements = set(['div', 'p', 'form', 'ul', 'ol', 'li', 'table', 'tr',
@@ -59,8 +59,9 @@ class HTMLCompress(Extension):
     ])
 
     def is_isolated(self, stack):
-        for tag in reversed(stack):
-            if tag in self.isolated_elements:
+        for tag, value in reversed(stack):
+            if (tag in self.isolated_elements
+                or (tag == "script" and "ng-template" not in value)):
                 return True
         return False
 
@@ -70,16 +71,16 @@ class HTMLCompress(Extension):
             ('#block' in breaking and tag in self.block_elements))
 
     def enter_tag(self, tag, ctx):
-        while ctx.stack and self.is_breaking(tag, ctx.stack[-1]):
-            self.leave_tag(ctx.stack[-1], ctx)
+        while ctx.stack and self.is_breaking(tag, ctx.stack[-1][0]):
+            self.leave_tag(ctx.stack[-1][0], ctx)
         if tag not in self.void_elements:
-            ctx.stack.append(tag)
+            ctx.stack.append((tag, ctx.token.value))
 
     def leave_tag(self, tag, ctx):
         if not ctx.stack:
             ctx.fail('Tried to leave "%s" but something closed '
                      'it already' % tag)
-        if tag == ctx.stack[-1]:
+        if tag == ctx.stack[-1][0]:
             ctx.stack.pop()
             return
         for idx, other_tag in enumerate(reversed(ctx.stack)):
