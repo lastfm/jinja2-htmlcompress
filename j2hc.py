@@ -6,6 +6,7 @@
     A Jinja2 extension that eliminates useless whitespace at template
     compilation time without extra overhead.
 
+    :copyright: (c) 2014 by erthalion (9erthalion6@gmail.com).
     :copyright: (c) 2011 by Armin Ronacher.
     :license: BSD, see LICENSE for more details.
 """

@@ -5,12 +5,12 @@ Jinja2 extension that removes whitespace between HTML tags.
 
 Example usage:
 ```py
-env = Environment(extensions=['jinja2htmlcompress.HTMLCompress'])
+env = Environment(extensions=['j2hc.HTMLCompress'])
 ```
 or for the coffin users:
 ```py
 JINJA2_EXTENSIONS = [
-    'jinja2htmlcompressor.HTMLCompress'
+    'j2hc.HTMLCompress'
 ]
 ```
 How does it work? It throws away all whitespace between HTML tags
@@ -27,7 +27,7 @@ at compile time and does not add an overhead in template execution.
 
 What if you only want to selective strip stuff?
 ```py
-env = Environment(extensions=['jinja2htmlcompress.SelectiveHTMLCompress'])
+env = Environment(extensions=['j2hc.SelectiveHTMLCompress'])
 ```
 And then mark blocks with:
 ```
