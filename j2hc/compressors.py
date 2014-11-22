@@ -94,14 +94,48 @@ class HTMLCompress(Extension):
 
     def normalize(self, ctx):
         pos = 0
-        buffer = []
+        token_buffer = []
 
-        def write_data(value):
-            if not self.is_isolated(ctx.stack):
-                value = _ws_normalize_re.sub(' ', value.strip())
-            if _incomplete_class_re.match(value) or _incomplete_tag_re.match(value):
-                value = value + " "
-            buffer.append(value)
+        def write_data(token_value, normalize=True):
+            if not token_value:
+                return
+
+            if normalize and not self.is_isolated(ctx.stack):
+                token_value = _ws_normalize_re.sub(' ', token_value.strip())
+
+            token_buffer.append(token_value)
+
+        def validate(prev, value, next):
+            if not value:
+                return value
+
+            space_before = False
+            space_after = False
+
+            # if it's the first token, check for
+            # space between previous attributes
+            if not prev and value and _end_attr_re.match(ctx.previous_value or ""):
+                space_before = True
+
+            if not space_after and  _incomplete_class_re.match(value):
+                space_after = True
+
+            if not space_after and _incomplete_tag_re.match(value):
+                space_after = True
+
+            if not space_before and (_closing_tag_re.match(prev or "") or prev == ">") and value[0] != "<":
+                space_before = True
+
+            if not space_after and (_opening_tag_re.match(next or "") or next == "<") and value[-1] != ">":
+                space_after = True
+
+            if space_before:
+                value = " " + value
+
+            if space_after:
+                value += " "
+
+            return value
 
         for match in _tag_re.finditer(ctx.token.value):
             closes, tag, sole = match.groups()
@@ -110,25 +144,29 @@ class HTMLCompress(Extension):
             if sole:
                 write_data(sole)
             else:
-                value = match.group()
-                if _incomplete_class_re.match(value) or _incomplete_tag_re.match(value):
-                    value = value + " "
-
-                buffer.append(value)
+                write_data(match.group(), normalize=False)
                 (closes and self.leave_tag or self.enter_tag)(tag, ctx)
             pos = match.end()
 
         write_data(ctx.token.value[pos:])
-        return u''.join(buffer)
+
+        return u''.join([
+            validate(prev, value, next)
+            for prev, value, next in
+            zip([None, ] + token_buffer[:-1], token_buffer, token_buffer[1:] + [None, ])
+        ])
 
     def filter_stream(self, stream):
         ctx = StreamProcessContext(stream)
+        ctx.previous_value = None
+
         for token in stream:
             if token.type != 'data':
                 yield token
                 continue
             ctx.token = token
             value = self.normalize(ctx)
+            ctx.previous_value = value
             yield Token(token.lineno, 'data', value)
 
 
