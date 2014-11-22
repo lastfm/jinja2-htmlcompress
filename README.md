@@ -2,7 +2,15 @@ jinja2-htmlcompress
 ===================
 
 Jinja2 extension that removes whitespace between HTML tags.
-
+You can install this package from PyPi:
+```bash
+pip install j2hc
+```
+or GitHub:
+```bash
+pip install git+https://github.com/erthalion/jinja2-htmlcompress
+```
+ 
 Example usage:
 ```py
 env = Environment(extensions=['j2hc.compressors.HTMLCompress'])
