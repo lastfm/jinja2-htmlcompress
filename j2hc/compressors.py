@@ -20,6 +20,9 @@ _tag_re = re.compile(r'(?:<(/?)([:a-zA-Z0-9_-]+)\s*|(>\s*))(?s)')
 _ws_normalize_re = re.compile(r'[ \t\r\n]+')
 _incomplete_class_re = re.compile(r'(^class|^.* class)="[^"]+$', re.DOTALL)
 _incomplete_tag_re = re.compile(r'.*<[a-zA-Z]*$', re.DOTALL)
+_closing_tag_re = re.compile(r'.*/[:a-zA-Z]*>$', re.DOTALL)
+_opening_tag_re = re.compile(r'^<[:a-zA-Z]+.*', re.DOTALL)
+_end_attr_re = re.compile(r'.*[:a-zA-Z0-9_-]*="[:a-zA-Z0-9-_]*"$', re.DOTALL)
 
 
 class StreamProcessContext(object):
