@@ -162,11 +162,19 @@ class HTMLCompress(Extension):
     def filter_stream(self, stream):
         ctx = StreamProcessContext(stream)
         ctx.previous_value = None
+        skip = False
 
         for token in stream:
-            if token.type != 'data':
+            if token.type == 'name' and token.value == u'trans':
+                skip = True
+
+            if token.type == 'name' and token.value == u'endtrans':
+                skip = False
+
+            if token.type != 'data' or skip:
                 yield token
                 continue
+
             ctx.token = token
             value = self.normalize(ctx)
             ctx.previous_value = value
