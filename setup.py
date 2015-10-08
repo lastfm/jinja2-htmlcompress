@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name = 'j2hc',
     packages = ['j2hc'],
-    version = '0.1.1',
+    version = '0.1.1.web-22102',
     description = 'Jinja2 extension that removes whitespace between HTML tags',
     author = 'Dmitry Dolgov',
     author_email = '9erthalion6@gmail.com',
