@@ -121,7 +121,7 @@ class HTMLCompress(Extension):
 
             # if it's the first token, check for
             # space between previous attributes
-            if not prev and value and _end_attr_re.match(ctx.previous_value or ""):
+            if not prev and value and _end_attr_re.match(getattr(ctx, 'previous_value', None) or ""):
                 space_before = True
 
             if not space_after and  _incomplete_class_re.match(value):
